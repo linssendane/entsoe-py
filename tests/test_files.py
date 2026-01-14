@@ -1,12 +1,20 @@
 from entsoe.files import EntsoeFileClient
-from dotenv import load_dotenv
+import os
 import pytest
 
 
-load_dotenv()
+try:
+    # Optional helper for local development; tests should still run without it.
+    from dotenv import load_dotenv  # type: ignore
+
+    load_dotenv()
+except ModuleNotFoundError:
+    pass
 
 @pytest.fixture
 def client():
+    if os.getenv("ENTSOE_USERNAME") is None or os.getenv("ENTSOE_PWD") is None:
+        pytest.skip("ENTSOE_USERNAME/ENTSOE_PWD not set; skipping ENTSO-E file API integration tests.")
     yield EntsoeFileClient()
 
 
